@@ -1,0 +1,19 @@
+{
+    "ejecucion": "2026-06-02T15:38:47.174093",
+    "pasos": [
+        {
+            "fase": "Ingesta Bronze",
+            "registros": 100000,
+            "archivo": "/app/bronze/cruces_raw.csv"
+        },
+        {
+            "fase": "Limpieza Silver",
+            "registros_finales": 93972,
+            "archivo": "/app/silver/cruces_clean.parquet"
+        },
+        {
+            "fase": "M\u00e9tricas Gold",
+            "archivo": "/app/gold/ranking_runners.parquet"
+        }
+    ]
+}

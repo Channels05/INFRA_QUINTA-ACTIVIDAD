@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Servicio 1: Base de Datos Relacional (Tu configuración original)
+  db:
+    image: postgres:15
+    container_name: paralelo_db
+    environment:
+      POSTGRES_USER: admin_runners
+      POSTGRES_PASSWORD: password_seguro
+      POSTGRES_DB: paralelo_analytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - data_network
+
+  # Servicio 2: El Pipeline de Big Data Automatizado (Eslabón Integrador)
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paralelo_pipeline
+    volumes:
+      # Mapeamos las carpetas locales hacia el contenedor para persistir las capas del Data Lakehouse
+      - ./bronze:/app/bronze
+      - ./silver:/app/silver
+      - ./gold:/app/gold
+      - ./metadata:/app/metadata
+      - ./metrics:/app/metrics
+    depends_on:
+      - db
+    networks:
+      - data_network
+
+  # Servicio 3: Entorno Analítico con Python y Jupyter (Potenciado con Volúmenes)
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: paralelo_jupyter
+    ports:
+      - "9999:8888"
+    environment:
+      - JUPYTER_TOKEN=utem2026
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      # Compartimos los datos generados por el pipeline con Jupyter para poder leer los .parquet
+      - ./bronze:/home/jovyan/work/bronze
+      - ./silver:/home/jovyan/work/silver
+      - ./gold:/home/jovyan/work/gold
+      - ./metadata:/home/jovyan/work/metadata
+      - ./metrics:/home/jovyan/work/metrics
+    depends_on:
+      - pipeline
+    networks:
+      - data_network
+
+# Definición de volúmenes persistentes para Postgres
+volumes:
+  db_data:
+
+# Red interna bridge del ecosistema
+networks:
+  data_network:
+    driver: bridge

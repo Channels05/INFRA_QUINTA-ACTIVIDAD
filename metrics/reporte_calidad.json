@@ -1,0 +1,8 @@
+{
+    "total_leido": 100000,
+    "reglas_fallidas": {
+        "estado_nulo": 5047,
+        "mismo_runner": 970,
+        "rssi_invalido": 11
+    }
+}
